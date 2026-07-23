@@ -7,7 +7,7 @@
 
 // New particles will start from a position that is at most this many units from
 // the particle that is currently closest to the starting side
-#define LOCAL_REGION 4
+#define LOCAL_REGION 2
 
 // Helpers for matrix indexing
 #define TOP(pout, NR, x_coord, y_coord) pout[(x_coord) * NR + y_coord - 1] != NA_INTEGER
@@ -92,15 +92,9 @@ SEXP DLA(SEXP Rnr,
 
     while (true) {
 
-      // Reset particles that get too far away from the aggregation region
-      x_coord = x_coord < min_x - LOCAL_REGION ? x_start : x_coord;
-      x_coord = x_coord > max_x + LOCAL_REGION ? x_end : x_coord;
-      y_coord = y_coord < min_y - LOCAL_REGION ? y_start : y_coord;
-      y_coord = y_coord > max_y + LOCAL_REGION ? y_end : y_coord;
+      if (x_coord == x_start) {
 
-      if (x_coord == 0) {
-
-        if (y_coord == 0) {
+        if (y_coord == y_start) {
 
           /* Upper-left corner */
 
@@ -113,7 +107,7 @@ SEXP DLA(SEXP Rnr,
 
           y_coord += RAND_2;
 
-        } else if (y_coord == NR - 1) {
+        } else if (y_coord == y_end) {
 
           /* Bottom-left corner */
 
@@ -145,9 +139,9 @@ SEXP DLA(SEXP Rnr,
 
         x_coord += RAND_2;
 
-      } else if (x_coord == NC - 1) {
+      } else if (x_coord == x_end) {
 
-        if (y_coord == 0) {
+        if (y_coord == y_start) {
 
           /* Upper-right corner */
 
@@ -160,7 +154,7 @@ SEXP DLA(SEXP Rnr,
 
           y_coord += RAND_2;
 
-        } else if (y_coord == NR - 1) {
+        } else if (y_coord == y_end) {
 
           /* Bottom-right corner */
 
@@ -194,7 +188,7 @@ SEXP DLA(SEXP Rnr,
 
       } else {
 
-        if (y_coord == 0) {
+        if (y_coord == y_start) {
 
           /* Top side */
 
@@ -209,7 +203,7 @@ SEXP DLA(SEXP Rnr,
 
           y_coord += RAND_2;
 
-        } else if (y_coord == NR - 1) {
+        } else if (y_coord == y_end) {
 
           /* Bottom side */
 
