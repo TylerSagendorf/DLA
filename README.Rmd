@@ -27,8 +27,37 @@ particles.
 
 ## Usage
 
-Below is an example of how the `DLA()` function is used. The output is
-visualized with the `ComplexHeatmap` R package.
+Below is an example of how the `DLA()` function is used. The runtime was
+measured on a Dell Latitude E7470 laptop with an Intel© Core™ i5-6300U CPU @
+2.40GHz.
+
+```{r DLA-heatmap}
+source("DLA.R")
+
+# Dimensions of the output matrix
+nr <- 200L
+nc <- 300L
+
+# The bottom row of the output matrix will be filled with particles to start
+x <- seq_len(nc)
+y <- rep.int(nr, length(x))
+n_particles <- 6000L
+
+system.time({
+  
+  res <- DLA(
+    nr = nr,
+    nc = nc,
+    x = x,
+    y = y,
+    n_particles = n_particles,
+    seed = 9001L
+  )
+  
+})
+```
+
+The results are visualized with the `ComplexHeatmap` R package.
 
 ```{r setup-heatmap, warning=FALSE, message=FALSE}
 if (!require("BiocManager", quietly = TRUE, character.only = TRUE)) {
@@ -40,29 +69,6 @@ if (!require("ComplexHeatmap", quietly = TRUE, character.only = TRUE)) {
 }
 
 library(ComplexHeatmap)
-```
-
-
-```{r DLA-heatmap}
-source("DLA.R")
-
-# Dimensions of the output matrix
-nr <- 2^8
-nc <- 2^8
-
-# The bottom row of the output matrix will be filled with particles to start
-x <- seq_len(nc)
-y <- rep.int(nr, length(x))
-n_particles <- 2^12
-
-res <- DLA(
-  nr = nr,
-  nc = nc,
-  x = x,
-  y = y,
-  n_particles = n_particles,
-  seed = 9001L
-)
 
 # Heatmap ----
 particle_size <- unit(1.2, "pt")
@@ -84,7 +90,7 @@ Heatmap(
   height = particle_size * nr,
   width = particle_size * nc,
   heatmap_legend_param = list(
-    title = "Particle\nAggregation\nOrder"
+    title = "Arrival\nOrder"
   )
 )
 

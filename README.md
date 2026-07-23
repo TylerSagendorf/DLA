@@ -17,8 +17,39 @@ number of particles.
 
 ## Usage
 
-Below is an example of how the `DLA()` function is used. The output is
-visualized with the `ComplexHeatmap` R package.
+Below is an example of how the `DLA()` function is used. The runtime was
+measured on a Dell Latitude E7470 laptop with an Intel© Core™ i5-6300U
+CPU @ 2.40GHz.
+
+``` r
+source("DLA.R")
+
+# Dimensions of the output matrix
+nr <- 200L
+nc <- 300L
+
+# The bottom row of the output matrix will be filled with particles to start
+x <- seq_len(nc)
+y <- rep.int(nr, length(x))
+n_particles <- 6000L
+
+system.time({
+  
+  res <- DLA(
+    nr = nr,
+    nc = nc,
+    x = x,
+    y = y,
+    n_particles = n_particles,
+    seed = 9001L
+  )
+  
+})
+#>    user  system elapsed 
+#>   2.396   0.016   2.445
+```
+
+The results are visualized with the `ComplexHeatmap` R package.
 
 ``` r
 if (!require("BiocManager", quietly = TRUE, character.only = TRUE)) {
@@ -30,28 +61,6 @@ if (!require("ComplexHeatmap", quietly = TRUE, character.only = TRUE)) {
 }
 
 library(ComplexHeatmap)
-```
-
-``` r
-source("DLA.R")
-
-# Dimensions of the output matrix
-nr <- 2^8
-nc <- 2^8
-
-# The bottom row of the output matrix will be filled with particles to start
-x <- seq_len(nc)
-y <- rep.int(nr, length(x))
-n_particles <- 2^12
-
-res <- DLA(
-  nr = nr,
-  nc = nc,
-  x = x,
-  y = y,
-  n_particles = n_particles,
-  seed = 9001L
-)
 
 # Heatmap ----
 particle_size <- unit(1.2, "pt")
@@ -73,12 +82,12 @@ Heatmap(
   height = particle_size * nr,
   width = particle_size * nc,
   heatmap_legend_param = list(
-    title = "Particle\nAggregation\nOrder"
+    title = "Arrival\nOrder"
   )
 )
 ```
 
-![](README_files/figure-gfm/DLA-heatmap-1.png)<!-- -->
+![](README_files/figure-gfm/setup-heatmap-1.png)<!-- -->
 
 ### Session Information
 
@@ -97,8 +106,8 @@ print(sessionInfo(), locale = FALSE)
 #> [8] base     
 #> 
 #> other attached packages:
-#> [1] Rcpp_1.1.2            dqrng_0.4.1           ComplexHeatmap_2.18.0
-#> [4] BiocManager_1.30.27  
+#> [1] ComplexHeatmap_2.18.0 BiocManager_1.30.27   Rcpp_1.1.2           
+#> [4] dqrng_0.4.1          
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] crayon_1.5.3        doParallel_1.0.17   cli_3.6.6          
