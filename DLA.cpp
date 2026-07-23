@@ -80,16 +80,23 @@ SEXP DLA(SEXP Rnr,
     // adding particles if all sides are saturated (check that the number of
     // saturated sides is 4).
 
-    int x_coord = dqrng::dqsample_int(NC, 1, true)[0];
+    const int x_start = MAX(0, min_x - LOCAL_REGION);
+    const int x_end = MIN(NC - 1, max_x + LOCAL_REGION);
+    int x_coord = dqrng::dqsample_int(x_end - x_start, 1, true)[0] + x_start;
+
     const int y_start = MAX(0, min_y - LOCAL_REGION);
+    const int y_end = MIN(NR - 1, max_y + LOCAL_REGION);
     int y_coord = y_start;
 
     bool freeze_particle = false;
 
     while (true) {
 
-      // Reset particles that get too far away from the starting y coordinate
-      y_coord = y_coord < y_start - LOCAL_REGION ? y_start : y_coord;
+      // Reset particles that get too far away from the aggregation region
+      x_coord = x_coord < min_x - LOCAL_REGION ? x_start : x_coord;
+      x_coord = x_coord > max_x + LOCAL_REGION ? x_end : x_coord;
+      y_coord = y_coord < min_y - LOCAL_REGION ? y_start : y_coord;
+      y_coord = y_coord > max_y + LOCAL_REGION ? y_end : y_coord;
 
       if (x_coord == 0) {
 
@@ -243,7 +250,10 @@ SEXP DLA(SEXP Rnr,
 
     }
 
+    min_x = MIN(min_x, x_coord);
+    max_x = MAX(max_x, x_coord);
     min_y = MIN(min_y, y_coord);
+    max_y = MAX(max_y, y_coord);
 
     pout[x_coord * NR + y_coord] = particle_order++;
   }
