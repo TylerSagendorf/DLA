@@ -1,0 +1,98 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi = 500
+)
+```
+
+# Diffusion-Limited Aggregation
+
+The `DLA()` R function performs diffusion-limited aggregation (DLA) and outputs
+an integer matrix.
+
+[Link to DLA Wikipedia page.](https://en.wikipedia.org/wiki/Diffusion-limited_aggregation)
+
+The core is written in C++, so the `Rcpp` package is required and will be
+installed automatically when DLA.R is sourced.
+
+This is a work in progress, so the program may be slow with a large number of
+particles.
+
+## Usage
+
+Below is an example of how the `DLA()` function is used. The output is
+visualized with the `ComplexHeatmap` R package.
+
+```{r setup-heatmap, warning=FALSE, message=FALSE}
+if (!require("BiocManager", quietly = TRUE, character.only = TRUE)) {
+  install.packages("BiocManager", dependencies = TRUE)
+}
+
+if (!require("ComplexHeatmap", quietly = TRUE, character.only = TRUE)) {
+  BiocManager::install("ComplexHeatmap")
+}
+
+library(ComplexHeatmap)
+```
+
+
+```{r DLA-heatmap}
+source("DLA.R")
+
+# Dimensions of the output matrix
+nr <- 2^8
+nc <- 2^8
+
+# The bottom row of the output matrix will be filled with particles to start
+x <- seq_len(nc)
+y <- rep.int(nr, length(x))
+n_particles <- 2^12
+
+res <- DLA(
+  nr = nr,
+  nc = nc,
+  x = x,
+  y = y,
+  n_particles = n_particles,
+  seed = 9001L
+)
+
+# Heatmap ----
+particle_size <- unit(1.2, "pt")
+
+Heatmap(
+  matrix = res,
+  col = circlize::colorRamp2(
+    breaks = c(
+      0L,
+      1L,
+      quantile(res, 1:4 / 5, na.rm = TRUE),
+      max(res, na.rm = TRUE)
+    ),
+    colors = c("black", "red", "orange", "yellow3", "green2", "blue", "purple")
+  ),
+  na_col = "grey95",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  height = particle_size * nr,
+  width = particle_size * nc,
+  heatmap_legend_param = list(
+    title = "Particle\nAggregation\nOrder"
+  )
+)
+
+```
+
+### Session Information
+
+```{r session-info}
+print(sessionInfo(), locale = FALSE)
+```
+
